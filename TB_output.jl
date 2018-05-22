@@ -8,7 +8,7 @@ module TB_output
 
     function write_vtk_single(sol, fname = "null")
        outfiles = String[]
-       N = size(sol,1)
+       N = size(sol,3)
        # generate vtk_grid
        xyz = zeros(FloatType, 3, N, N, N)
        for k = 1:N, j = 1:N, i = 1:N
@@ -20,7 +20,7 @@ module TB_output
 
        # ---------------------------------------------------------------------
        # writing vorticity
-       ω = real(ifft(sol,[1,2,3]))
+       ω = real(irfft(sol, N,[1,2,3]))
 
        @views vort_tuple = (
                     ω[:, :, :, 1],
@@ -39,7 +39,7 @@ module TB_output
         # write to outfile
         #append!(outfiles, vtk_save(vtk))
 
-        return vtk, outfiles
+        return vtk
     end
 
     function write_vtk_series(sols, pvd_name)

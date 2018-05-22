@@ -4,7 +4,6 @@ module integrator
     using parms
     using oprs
     using MuladdMacro
-    using ParallelAccelerator
     export integrator_t, integrator_init
 
     struct int_cache_t
