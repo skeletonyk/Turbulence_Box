@@ -1,10 +1,11 @@
 module TurbulenceBox
+    using Input
     using Solver
     FFTW.set_num_threads(Sys.CPU_CORES)
     export runn
 
     function runn()
-    N = 128
+    N = 256
     Re = 100.0
     N_tot = 5
 
