@@ -1,5 +1,5 @@
 push!(LOAD_PATH, pwd())
-dir = "/home/kyu/Turbulence_Box"
+dir = "/home/ke/Dropbox/LES_stat/Turbulence_box"
 push!(LOAD_PATH, dir)
 FFTW.set_num_threads(Sys.CPU_CORES)
 import input;reload("input")
@@ -8,7 +8,7 @@ import TB_types
 import sol_show;
 using JLD
 
-N = 256
+N = 32
 Re = 300
 max_tstep_cnt = 1
 output_freq = 60
@@ -16,7 +16,7 @@ ICC = "KevinHelmholtz"
 #ICC = "ABC"
 RK = 2
 
-ICC = "restart"
+#ICC = "restart"
 
 input_ = input.input_init(N, Re, ICC, max_tstep_cnt, output_freq, RK)
 

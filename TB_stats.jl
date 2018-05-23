@@ -8,10 +8,10 @@ module TB_stats
         N = size(w,3)
         u = similar(w)
         opr.curl(w, u)
-        u .*= opr.cache.con.l_inv
+        u .*= -opr.cache.con.l_inv
 
         # normal fft
-        u = fft(irfft(u,N,[1,2,3]),[1,2,3])
+        u = fft(irfft(u,N,[1,2,3]),[1,2,3])./N^3
 
         u_2 = sum(u .* conj(u), 4)
 

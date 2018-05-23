@@ -1,8 +1,8 @@
 push!(LOAD_PATH, pwd())
 using JLD
 import TB_output; reload("TB_output")
-dir = "/home/kyu/Turbulence_Box"
-fname = "KH_N_256_Re_300.jld"
+dir = "/home/ke/Dropbox/LES_stat/Turbulence_box"
+fname = "KH_N_32_Re_300_long.jld"
 
 s = load(dir * "/data/" * fname)
 sols = s["sols"]

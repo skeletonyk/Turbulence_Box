@@ -24,6 +24,7 @@ end
     nonlin(w, cache)
 
     if forcing
+        cache.tmp.curl_force .=0
         forcing_calc(cache.tmp.u, cache.tmp.force)
         curl_exec(cache.tmp.force, cache.tmp.curl_force, cache.con.k)
         @. a = - cache.tmp.nl + cache.tmp.curl_force

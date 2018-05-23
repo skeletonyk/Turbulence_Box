@@ -5,33 +5,39 @@ import input;reload("input")
 import solver;reload("solver")
 import sol_show;
 using JLD
+dir = "/home/ke/Dropbox/LES_stat/Turbulence_box"
 
-N = 128
-Re = 100
-max_tstep_cnt = 10
-output_freq = 50
+N = 32
+Re = 1/0.017/2
+max_tstep_cnt = 1
+output_freq = 100
 ICC = "IHT"
+fname = dir * "/data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
 RK = 2
-#ICC = "restart"
+dt = 0.025
+ICC = "restart"
 
-Forcing = false
-#Forcing = true
+#Forcing = false
+Forcing = true
 
-input_ = input.input_init(N, Re, ICC, max_tstep_cnt, output_freq, RK, Forcing)
+input_ = input.input_init(N, Re, ICC, max_tstep_cnt, output_freq, RK, dt, Forcing)
 
 if ICC == "restart"
+    s = load(fname)
+    sols = s["sols"]
     solver_ = solver.init_solver(input_, sols);
 else
     solver_ = solver.init_solver(input_);
 end
 sols = solver_.solve(solver_);
-name = "./data/IHT_N_" * string(N) * "_Re_" * string(Re) * ".jld"
-save(name, "sols", sols)
+save(fname, "sols", sols)
 
-import TB_stats
+import TB_stats; reload("TB_stats")
 #using Plots
 #gr(show = true)
-w1 = sols.sol[1]
+w1 = sols.sol[ length(sols.sol)]
 Ek = TB_stats.E_k(w1, solver_.opr)
-k = 1:size(w1,1)>>1
+Ek = Ek[2:end]
+k = 2:size(w1,3)>>1
 #plot(k, Ek, yscale =:log10, xscale =:log10)
+#plot!(k, k.^(-5/3), yscale =:log10, xscale =:log10)

@@ -5,6 +5,7 @@ module input
         N :: Int
         Re :: Real
         IC :: String
+        dt :: Real
         max_tstep_cnt :: Int
         output_freq :: Int
         RK :: Int
@@ -16,7 +17,7 @@ module input
         output_freq
     end
 
-    function input_init(N, Re, IC, max_tstep_cnt, output_freq, RK, forcing = false)
-        return input_t(N, Re, IC, max_tstep_cnt, output_freq, RK, forcing)
+    function input_init(N, Re, IC, max_tstep_cnt, output_freq, RK, dt = 0.0, forcing = false)
+        return input_t(N, Re, IC, dt, max_tstep_cnt, output_freq, RK, forcing)
     end
 end

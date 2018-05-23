@@ -93,7 +93,7 @@ module integrator
             @time step(w, opr, int_cache, pms.dt);
 
             t = t+ pms.dt
-            e  = real(sum( opr.cache.tmp.μ .* conj(opr.cache.tmp.μ) )) ./ pms.N^3
+            e  = sum( opr.cache.tmp.μ .* opr.cache.tmp.μ ) ./ size( opr.cache.tmp.μ, 3)^3
             #println("max velocity", maximum(real(opr.cache.tmp.μ)))
             if mod(i, output_plan.output_freq) == 0
                     push!(sol_s.sol, deepcopy(w))

@@ -33,7 +33,12 @@ module parms
         ν = 1.0/Re
         U_max = complex(1.0)
         dx = L ./ N
-        dt = complex(min(real(2.8 * dx/(pi * U_max)), real(2.8 *Re *dx^2 /pi^2)))
+
+        if input.dt == 0.0
+            dt = complex(min(real(2.8 * dx/(pi * U_max)), real(2.8 *Re *dx^2 /pi^2)))
+        else
+            dt = complex(input.dt)
+        end
 
         return parms_t(N, N_pad, k, L, a, Re, ν, dx, dt, U_max, RK, input.forcing)
         nothing
