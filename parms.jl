@@ -18,6 +18,7 @@ module parms
         U_max :: T
         RK :: Int
         forcing :: Bool
+        f_mag :: Float64
     end
 
     function parms_init(input)
@@ -40,7 +41,7 @@ module parms
             dt = complex(input.dt)
         end
 
-        return parms_t(N, N_pad, k, L, a, Re, ν, dx, dt, U_max, RK, input.forcing)
+        return parms_t(N, N_pad, k, L, a, Re, ν, dx, dt, U_max, RK, input.forcing, input.f_mag)
         nothing
     end
 

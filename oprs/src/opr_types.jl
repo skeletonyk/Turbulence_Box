@@ -1,4 +1,5 @@
     struct opr_tmp_cache_t
+        a ::  TB_data_t
         u ::  TB_data_t
         nl ::  TB_data_t
         wu_cut ::  TB_data_t

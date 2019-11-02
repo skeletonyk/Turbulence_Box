@@ -1,18 +1,21 @@
+using LinearAlgebra
 @inline function pad_ifft(u :: TB_data_t, v :: TB_data_real_t, f_inv, f_view, f_pad_half)
 
     fill!(f_pad_half, complex(0.0))
     @muladd f_view .= u
-    A_mul_B!(v, f_inv, f_pad_half)
+    LinearAlgebra.mul!(v, f_inv, f_pad_half)
     # A_mul_B! with irfft would change the value of f_pad_half somehow
     #f_pad_half .= complex(0.0)
-    v .*= 1.5^3
+    #v .*= 1.5^3
+    N = size(f_pad_half,3)
+    #v .*= sqrt(N)
     nothing
 
 end
 
 @inline function pad_fft(ωμ :: TB_data_real_t, wu_cut :: TB_data_t, cache)
 
-    A_mul_B!(cache.tmp.wu, cache.con.f_, ωμ)
+    LinearAlgebra.mul!(cache.tmp.wu, cache.con.f_, ωμ)
     cut(cache.tmp.wu, wu_cut, cache.con.ind)
     nothing
 end
@@ -28,10 +31,10 @@ end
 
 end
 
-@inline function nonlin{F}(w :: TB_data_t, cache :: F)
+@inline function nonlin(w :: TB_data_t, cache :: F) where F
     # 1.
-    curl_exec(w, cache.tmp.u, cache.con.k)
-    cache.tmp.u .*= -cache.con.l_inv
+    cache.tmp.a .= -w .* cache.con.l_inv
+    curl_exec(cache.tmp.a, cache.tmp.u, cache.con.k)
 
     # ω × u
     # get u, w in real space

@@ -1,5 +1,5 @@
 module integrator
-    using input
+    using Input
     using TB_types
     using parms
     using oprs

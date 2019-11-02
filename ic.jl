@@ -1,5 +1,48 @@
 module ic
-    export KevinHelmholtz, simple, init_f
+    using FFTW
+    export KevinHelmholtz, simple, init_f, init_from_file
+    using HDF5
+
+    function init_from_file(parms, filename, opr)
+        N = parms.N
+
+        println("Open file ", filename)
+        file_mu = h5open(filename, "r") do file
+            read(file, "u")
+        end
+
+        mu = zeros(N, N, N, 3);
+        w = complex(zeros(N>>1+1, N, N, 3) );
+
+        count = 1
+        for i=1:N
+            for j=1:N
+                for k =1:N
+                    mu[i,j,k,:] .= file_mu[:,count]
+                    count = count+1
+                end
+            end
+        end
+
+        u = fft(mu,[1,2,3])
+
+        N_2 = size(w,3)>>1 + 1
+        u[N_2, :, :, :] .= 0
+        u[:, N_2, :, :] .= 0
+        u[:, :, N_2, :] .= 0
+
+        ### Cut off some high wave number from aliasing
+        u[Int(round(N_2*2/4)):end, :, :, :] .= 0
+        u[:, Int(round(N_2*2/4)):end, :, :] .= 0
+        u[:, :, Int(round(N_2*2/4)):end, :] .= 0
+
+        u = u[1:N_2, :, :, : ]
+
+
+        opr.curl(u,w)
+        return w
+
+    end
 
     function init_f(parms, IC_name, opr)
         N = parms.N
@@ -48,17 +91,17 @@ module ic
                     for m = 1:3
                     k_bar = sqrt(k0[i].^2 + k0[j].^2 + k0[k].^2)
                     if k_bar >0
-                        w[i,j,k,m] .= rand()#w[i,j,k] = 3e4 * rand()*k_bar^(-2/3)
+                        w[i,j,k,m] = rand()#w[i,j,k] = 3e4 * rand()*k_bar^(-2/3)
                     else
-                        w[i,j,k,m] .= rand()
+                        w[i,j,k,m] = rand()
                     end
                 end
                 end
             end
         end
-        ww = similar(rfft(w,[1,2,3]))
-        opr.curl(rfft(w,[1,2,3]), ww)
-        return ww
+        ww = similar(FFTW.rfft(w,[1,2,3]))
+        opr.curl(FFTW.rfft(w,[1,2,3]), ww)
+        return ww;
     end
 
 
@@ -88,13 +131,13 @@ module ic
         u = fft(μ, [1,2,3])
         opr.curl(u,w)
 
-        return w
+        return w;
     end
 
     function simple(N)
         ω = zeros(N, N, N, 3) ;
         y = collect(0:N-1) ./N;
-        ω_v = 1./((1+sin.((1:N)/N*2pi)).^2 +  (cos.((1:N)/N*2pi))+1)
+        ω_v = 1 ./((1+sin.((1:N)/N*2pi)).^2 +  (cos.((1:N)/N*2pi))+1)
         for i = 1 : N
             ω[i,:,:,3] .= ω_v[i]
         end
