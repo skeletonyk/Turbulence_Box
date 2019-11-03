@@ -1,6 +1,6 @@
 using FFTW
     function oprs_init(parms, minimum=false)
-        cache = opr_cache_init(parms, minimum)
+        cache = opr_cache_init(parms, minimum);
 
         if parms.RK == 4
             f = (w,a) -> f_wo_if_exec(w,a,cache,parms.ν, parms.forcing, parms.f_mag)
@@ -30,9 +30,6 @@ using FFTW
         tmplt_big = zero_TB_data(N_pad)
         tmplt_big_real = zero_TB_real_data(N_pad)
         tmplt_big_half = zeros(Complex{Float64}, N_pad>>1+1, N_pad, N_pad,3)
-
-
-        println(tmplt_big)
 
         tmp = opr_tmp_cache_t(
             deepcopy(tmplt),
