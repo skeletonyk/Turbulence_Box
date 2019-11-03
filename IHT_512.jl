@@ -9,35 +9,50 @@ using Solver;
 import sol_show;
 using JLD2
 dir = "./"
-
-N = 256
 f_mag = 0.103 * (2*pi)^3 #(1/Re)^3 *(N/2/1.4)^4
+
+N = 64
 nu = ( (1.5/N*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re = 1/nu
-max_tstep_cnt = 1
-output_freq = 3000
-RK =    2
-dt = 1/N*0.1*2*pi
-ICC = "IHT"
-#ICC = "from_file"
-filename  = "../JHTBD/data_64.h5"
-fname = dir * "data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
-#f_mag = 0.103 * (2*pi)^3 * 2#(1/Re)^3 *(N/2/1.4)^4
-#ICC = "restart"
-
-#dt = sqrt(abs(f_mag)*Re)/2 * 0.1
-
 
 Forcing = false
 Forcing = true
 
+max_tstep_cnt = 1001
+output_freq = 1000
+RK =    2
+dt = 1/N*0.2*2*pi
+
+ICC = "IHT"
+#ICC = "from_file"
+filename  = "../JHTBD/data_64.h5"
+
+fname = dir * "data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
+
+# --- generate IC from julia results of a different resolution
+N_ref = 32
+nu_ref = ( (1.5/N_ref*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
+Re_ref = 1/nu_ref
+fname_ref = dir * "data/" * ICC * "_N_" * string(N_ref) * "_Re_" * string((round(Re_ref))) * ".jld"
+# --- generate IC from julia results of a different resolution
+
+ICC = "restart"
+from_julia_file = true
+
+#from_julia_file = false
+
 input_ = Input.input_init(N, Re, ICC, max_tstep_cnt, output_freq, RK, dt, Forcing, f_mag);
-@suppress begin
+continue_sols=true
+begin
     if ICC == "restart"
-        #s = load(fname)
-        @load fname sols
-        #sols = s["sols"]
-        global Solver_ = Solver.init_solver(input_, sols);
+        if (!from_julia_file)
+            @load fname sols;
+            global Solver_ = Solver.init_solver(input_, sols, "", continue_sols );
+        else
+            continue_sols=false
+            @load fname_ref sols;
+            Solver_ = Solver.init_solver(input_, sols, "", continue_sols )
+        end
     elseif ICC == "from_file"
         Solver_ = Solver.init_solver(input_, [], filename)
     else
