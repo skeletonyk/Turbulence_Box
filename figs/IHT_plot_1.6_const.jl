@@ -11,7 +11,7 @@ using LaTeXStrings
 stats = TB_stats.stats_build(w, opr, ν)
 
 Ek = stats.Ek[3:end]
-k = collect(3:1:3+size(Ek,1)-1)
+k = collect(2.5:1:2.5+size(Ek,1)-1)
 ηk = stats.η * k
 
 plot(k,

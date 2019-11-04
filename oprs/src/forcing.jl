@@ -18,7 +18,7 @@ function forcing_calc(u :: TB_data_t, force :: TB_data_t, f_mag :: Float64)
                     #println(i," ",j," ",k)
                     if abs(u[i,j,k,m])>0
                         cnt +=1
-                        force[i,j,k, m] = k_norm^(-5/3)
+                        force[i,j,k, m] = k_norm^(-8/3) * u[i,j,k,m]/abs(u[i,j,k,m])^2
                         sum_input += force[i,j,k,m] * conj(u[i,j,k,m])
                     end
                 end

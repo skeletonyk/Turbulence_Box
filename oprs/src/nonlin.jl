@@ -6,7 +6,6 @@ using LinearAlgebra
     LinearAlgebra.mul!(v, f_inv, f_pad_half)
     # A_mul_B! with irfft would change the value of f_pad_half somehow
     #f_pad_half .= complex(0.0)
-    #v .*= 1.5^3
     N = size(f_pad_half,3)
     #v .*= sqrt(N)
     nothing

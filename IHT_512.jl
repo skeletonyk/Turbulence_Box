@@ -18,10 +18,10 @@ Re = 1/nu
 Forcing = false
 Forcing = true
 
-max_tstep_cnt =1001
-output_freq = 1000
+max_tstep_cnt =301
+output_freq = 300
 RK =    2
-dt = 1/N*0.4*2*pi
+dt = 1/N*0.2*2*pi
 
 ICC = "IHT"
 #ICC = "from_file"
@@ -30,7 +30,8 @@ filename  = "../JHTBD/data_64.h5"
 fname = dir * "data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
 
 # --- generate IC from julia results of a different resolution
-N_ref = 128
+N_ref = N
+
 nu_ref = ( (1.5/N_ref*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re_ref = 1/nu_ref
 fname_ref = dir * "data/" * ICC * "_N_" * string(N_ref) * "_Re_" * string((round(Re_ref))) * ".jld"

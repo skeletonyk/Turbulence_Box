@@ -1,10 +1,10 @@
 @inline function f_wo_if_exec(w :: TB_data_t, a :: TB_data_t, cache, ν, forcing, f_mag)
     N_2 = size(w,3)>>1 + 1
 
-    #w[N_2, :, :, :] .= 0
-    #w[:, N_2, :, :] .= 0
-    #w[:, :, N_2, :] .= 0
-    #w[1,1,1,:] .= 0
+    w[N_2, :, :, :] .= 0
+    w[:, N_2, :, :] .= 0
+    w[:, :, N_2, :] .= 0
+    w[1,1,1,:] .= 0
 
     nonlin(w, cache)
 
@@ -28,7 +28,7 @@ end
     w[:, N_2, :, :] .= 0
     w[:, :, N_2, :] .= 0
 
-    #w[1,1,1,:] .= 0
+    w[1,1,1,:] .= 0
 
     nonlin(w, cache)
 
