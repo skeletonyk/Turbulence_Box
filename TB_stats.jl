@@ -6,6 +6,7 @@ module TB_stats
     export stats_build
 
     struct stats_t
+        Etot
         k
         Ek
         ε
@@ -20,7 +21,7 @@ module TB_stats
 
     function stats_build(w :: TB_data_t, opr, ν)
         N = size(w,3);
-        k = 0.5:( N - 1.5)
+        k = 0:( N - 2)
 
         a = -w .* opr.cache.con.l_inv
 
@@ -30,7 +31,10 @@ module TB_stats
         μ = irfft(u,N,[1,2,3])
         u = fft(μ,[1,2,3])./N^3
 
+        Etot = 0.5*sum(μ.^2) / N^3
         Ek = Ek_calc(w, u, opr)
+
+
         ε = ε_calc(w, u, opr, ν)
         η = (ν^3/ε)^(1/4)
         u_p = sqrt(mean(μ.^2))#irfft(u,N,[1,2,3]) # u_p_calc(w, u )
@@ -44,6 +48,7 @@ module TB_stats
 
 
         return stats_t(
+        Etot,
         k,
         Ek,
         ε,
@@ -78,9 +83,9 @@ module TB_stats
         for k = 1: N
             for j = 1:N
                 for i = 1:N
-                    k_r = Int( round(sqrt(k0[i].^2 + k0[j].^2 + k0[k].^2 )+0.50000000000001) )
+                    k_r = Int( round(sqrt(k0[i].^2 + k0[j].^2 + k0[k].^2 )) )
                     #println(i," ",j," ",k," ",k_r)
-                    if k_r < (N>>1)
+                    if (k_r < (N>>1) && k_r>0)
                         cnt +=1
                         Ek[k_r] += u_2[i,j,k,1]
                         bin[k_r] += 1
@@ -112,4 +117,19 @@ module TB_stats
         return real(s)
 
     end
+    function dissipation_sij_sum(u, opr)
+
+        k = opr.cache.con.k
+        S=0
+        for i=1:3
+            for j=1:3
+                sij= 0.5*(u[:,:,:,i] .* k[:,:,:,j]+u[:,:,:,j] .* k[:,:,:,i]);
+                Sij= ifft(sij)
+                S += sum(Sij .* conj(Sij))
+            end
+        end
+        return S*2*nu;
+
+    end
+
 end

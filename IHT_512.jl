@@ -11,17 +11,17 @@ using JLD2
 dir = "./"
 f_mag = 0.103 * (2*pi)^3 #(1/Re)^3 *(N/2/1.4)^4
 
-N = 64
+N = 128
 nu = ( (1.5/N*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re = 1/nu
 
 Forcing = false
 Forcing = true
 
-max_tstep_cnt = 1001
+max_tstep_cnt =1001
 output_freq = 1000
 RK =    2
-dt = 1/N*0.2*2*pi
+dt = 1/N*0.4*2*pi
 
 ICC = "IHT"
 #ICC = "from_file"
@@ -30,7 +30,7 @@ filename  = "../JHTBD/data_64.h5"
 fname = dir * "data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
 
 # --- generate IC from julia results of a different resolution
-N_ref = 32
+N_ref = 128
 nu_ref = ( (1.5/N_ref*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re_ref = 1/nu_ref
 fname_ref = dir * "data/" * ICC * "_N_" * string(N_ref) * "_Re_" * string((round(Re_ref))) * ".jld"
@@ -97,13 +97,35 @@ function dissipation_sij_sum(w, opr, nu)
         for i=1:3
             for j=1:3
                 sij= 0.5*(u[:,:,:,i] .* k[:,:,:,j]+u[:,:,:,j] .* k[:,:,:,i]);
-                Sij= ifft(sij)
-                S += sum(Sij .* conj(Sij))
+                Sij= irfft(sij, N)
+                S += sum(Sij .* (Sij))
             end
         end
         return S*2*nu/N^3;
 
 end
-s=dissipation_sij_sum(w,opr,nu)
-print(s)
+function dissipation_sij_sum_real_sapce(w, opr, nu)
+        N = size(w,3);
+        a = -w .* opr.cache.con.l_inv
+
+        u = similar(w)
+        opr.curl(a, u)
+
+        mu=irfft(u, N, [1,2,3])
+
+        S=0
+        for i=1:3
+            S+= sum( (mu[2:end,:,:,i]-mu[1:end-1,:,:,i]).^2 ) +
+            sum( (mu[:,2:end,:,i]-mu[:,1:end-1,:,i]).^2 ) +
+            sum( (mu[:,:,2:end,i]-mu[:,:,1:end-1,i]).^2 ) +
+            sum( (mu[end,:,:,i]-mu[1,:,:,i]).^2) +
+            sum( (mu[:,end,:,i]-mu[:,1,:,i]).^2) +
+            sum( (mu[:,:,end,i]-mu[:,:,1,i]).^2)
+
+        end
+        return S*nu/N^3 *(N/2/pi)^2;
+    end
+
+s=dissipation_sij_sum_real_sapce(w,opr,nu)
+println(s)
 print(stat.Reλ)

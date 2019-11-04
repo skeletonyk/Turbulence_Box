@@ -17,9 +17,10 @@ using LaTeXStrings
 stats = TB_stats.stats_build(w, opr, ν)
 #gr(show = true)
 Ek = stats.Ek[3:end]
-k = stats.k[3:end]
+#k = collect(stats.k[3:end])
+k = collect(2.5:1:2.5+size(Ek,1)-1)
 ηk = stats.η * k
-y = Ek./(stats.ε * ν^5)^(1/4) .* (ηk).^(5/3)
+y = Ek ./ (stats.ε * ν^5)^(1/4) .* (ηk.^(5/3))
 y2 = Ek./(stats.ε * ν^5)^(1/4)
 
 plot(ηk,
@@ -64,7 +65,8 @@ ylabel = L"$\eta E(k)/ (\varepsilon \nu^5)^{1/4}$ "
 )
 
 plot!(ηk,
-ηk.^(-5/3)*2,
+stats.η * k.^(-5/3)*1000000,
+#ηk.^(-5/3)*2,
 lw=2,
 style=:auto,
 yscale =:log10,
