@@ -22,7 +22,7 @@ Forcing = true
 max_tstep_cnt =301
 output_freq = 300
 RK = 2
-dt = 1/N*0.3*2*pi
+dt = 1/N*0.2*2*pi
 
 ICC = "IHT"
 #ICC = "from_file"

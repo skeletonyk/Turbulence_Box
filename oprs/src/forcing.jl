@@ -17,16 +17,16 @@ function forcing_calc(u :: TB_data_t, force :: TB_data_t, f_mag :: Float64)
                 k = shell_ind[kk];
                 k_norm = sqrt(shell_k[ii]^2 + shell_k[jj]^2 +shell_k[kk]^2)
 
-                if (k_norm<3.5 && k_norm>=0.01)
+                if (k_norm<2.5 && k_norm>=0.01)
                     #println(i," ",j," ",k)
                     #println(u[i,j,k,m])
                     if abs(u[i,j,k,m])>0.1
                         cnt +=1
                         force[i,j,k, m] = k_norm^(-8/3) / conj(u[i,j,k,m])
                         if (shell_k[ii] == 0)
-                            sum_input += k_norm^(-8/3)#force[i,j,k,m] * conj(u[i,j,k,m])
+                            sum_input += k_norm^(-8/3)
                         else
-                            sum_input += k_norm^(-8/3) * 2 #2* force[i,j,k,m] * conj(u[i,j,k,m])
+                            sum_input += k_norm^(-8/3)*2
                         end
                     end
                 end
