@@ -7,7 +7,7 @@ using LinearAlgebra
     # A_mul_B! with irfft would change the value of f_pad_half somehow
     #f_pad_half .= complex(0.0)
     N = size(f_pad_half,3)
-    #v .*= sqrt(N)
+    #v .*= (1.5)^6
     nothing
 
 end
@@ -47,5 +47,6 @@ end
     pad_fft(cache.tmp.ωμ, cache.tmp.wu_cut, cache)
 
     curl_exec(cache.tmp.wu_cut, cache.tmp.nl, cache.con.k)
+    cache.tmp.nl .= cache.tmp.nl .* (1.5^3);
     nothing
 end

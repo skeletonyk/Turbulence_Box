@@ -63,7 +63,7 @@ module TB_stats
         )
     end
     function integral_scale(Ek, u_p)
-        k = 0.5:1:size(Ek,1)
+        k = 1:1:size(Ek,1)
         return sum(Ek./k)*pi/2/u_p^2
 
     end
@@ -91,7 +91,7 @@ module TB_stats
                 for i = 1:N
                     k_r = Int( round(sqrt(k0[i].^2 + k0[j].^2 + k0[k].^2 )+0.50000000000001) )
                     #println(i," ",j," ",k," ",k_r)
-                    if k_r < (N>>1)
+                    if (k_r < (N>>1) && k_r>0)
                         cnt +=1
                         Ek[k_r] += u_2[i,j,k,1]
                         bin[k_r] += 1

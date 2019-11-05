@@ -2,7 +2,7 @@ push!(LOAD_PATH, pwd())
 using Revise
 using Suppressor
 using FFTW
-FFTW.set_num_threads(16)
+FFTW.set_num_threads(24)
 using TB_types
 import Input;
 using Solver;
@@ -11,7 +11,8 @@ using JLD2
 dir = "./"
 f_mag = 0.103 * (2*pi)^3 #(1/Re)^3 *(N/2/1.4)^4
 
-N = 128
+N = 32
+N_ref = N
 nu = ( (1.5/N*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re = 1/nu
 
@@ -20,8 +21,8 @@ Forcing = true
 
 max_tstep_cnt =301
 output_freq = 300
-RK =    2
-dt = 1/N*0.2*2*pi
+RK = 2
+dt = 1/N*0.3*2*pi
 
 ICC = "IHT"
 #ICC = "from_file"
@@ -29,8 +30,10 @@ filename  = "../JHTBD/data_64.h5"
 
 fname = dir * "data/" * ICC * "_N_" * string(N) * "_Re_" * string((round(Re))) * ".jld"
 
+#nu = ( (2/N*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
+#Re = 1/nu
 # --- generate IC from julia results of a different resolution
-N_ref = N
+
 
 nu_ref = ( (1.5/N_ref*2.0)*(f_mag/(2*pi)^3)^0.25 ) ^(4/3)
 Re_ref = 1/nu_ref
@@ -106,6 +109,22 @@ function dissipation_sij_sum(w, opr, nu)
 
 end
 function dissipation_sij_sum_real_sapce(w, opr, nu)
+        function gradient(u, x)
+            N = size(u,3);
+            dx = 2*pi/N
+            g = zeros(N,N,N);
+                        if (x==1)
+                            @. g[1:end-1,:,:] = u[2:end,:,:]-u[1:end-1,:,:]
+                            @. g[end,:,:] =u[1,:,:]-u[end,:,:]
+                        elseif (x==2)
+                            @. g[:,1:end-1,:] = u[:,2:end,:]-u[:,1:end-1,:]
+                            @. g[:,end,:] = u[:,1,:]-u[:,end,:]
+                        elseif (x==3)
+                            @. g[:,:,1:end-1] = u[:,:,2:end]-u[:,:,1:end-1]
+                            @. g[:,:,end] = u[:,:,1]-u[:,:,end]
+                        end
+            return g/dx
+        end
         N = size(w,3);
         a = -w .* opr.cache.con.l_inv
 
@@ -116,15 +135,13 @@ function dissipation_sij_sum_real_sapce(w, opr, nu)
 
         S=0
         for i=1:3
-            S+= sum( (mu[2:end,:,:,i]-mu[1:end-1,:,:,i]).^2 ) +
-            sum( (mu[:,2:end,:,i]-mu[:,1:end-1,:,i]).^2 ) +
-            sum( (mu[:,:,2:end,i]-mu[:,:,1:end-1,i]).^2 ) +
-            sum( (mu[end,:,:,i]-mu[1,:,:,i]).^2) +
-            sum( (mu[:,end,:,i]-mu[:,1,:,i]).^2) +
-            sum( (mu[:,:,end,i]-mu[:,:,1,i]).^2)
-
+            for j=1:3
+                Sij = 0.5* (gradient(mu[:,:,:,i],j) + gradient(mu[:,:,:,j],i))
+                S += sum(Sij .^2)
+            end
         end
-        return S*nu/N^3 *(N/2/pi)^2;
+        return 2*S*nu/N^3;
+
     end
 
 s=dissipation_sij_sum_real_sapce(w,opr,nu)
